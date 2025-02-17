@@ -85,5 +85,5 @@ To Do:
 
 Quellen:
 PDF: FIPS PUB 180-4; FEDERAL INFORMATION PROCESSING STANDARDS PUBLICATION Secure Hash Standard (SHS)
-
+https://www.arnabkumardas.com/arduino-tutorial/usart-programming/ ??
 
