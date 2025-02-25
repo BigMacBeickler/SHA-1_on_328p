@@ -18,16 +18,16 @@ Keine existierenden Bibs/Lösungen nutzen.
 
 Minimale Anforderungen:
 
-Datenvorverarbeitung kann auf PC passieren (lame)
-SHA-1 Verarbeitung mit einem 512-bit breiten Datenblock (mehr = besser)
-Per USART an uC übertragen und zwischenspeichern
-Interrups!!
-!!!!Verarbeitung erfolgt erst durch nachfolgendes Senden des Steuerkommandos #!  !!!!
-Ergebniss des SHA-1 Algorithmuses auf uC zwischenspeichern.
-Steuerkommando #$ senden um Ergebniss von uC an PC zu senden (Putty?)
-System testen mittels Teststring "ESY - Matrikelnummer"; Ergebniss davon sollte sein: 
-b65e9709ff74d75174dbcfe3ba163b55e7217a2b
-Erstellt durch Notepad++
+Datenvorverarbeitung kann auf PC passieren (lame)  
+SHA-1 Verarbeitung mit einem 512-bit breiten Datenblock (mehr = besser)  
+Per USART an uC übertragen und zwischenspeichern  
+Interrups??!!  
+!!!!Verarbeitung erfolgt erst durch nachfolgendes Senden des Steuerkommandos #!  !!!!  
+Ergebniss des SHA-1 Algorithmuses auf uC zwischenspeichern.  
+!!Steuerkommando #$ senden um Ergebniss von uC an PC zu senden (Putty?)  !!
+System testen mittels Teststring "ESY - Matrikelnummer"; Ergebniss davon sollte sein:   
+b65e9709ff74d75174dbcfe3ba163b55e7217a2b  
+Erstellt durch Notepad++  
 
 -------------------------------------------------------------------------
 
