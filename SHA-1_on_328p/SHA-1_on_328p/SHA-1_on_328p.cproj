@@ -123,6 +123,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="sha1.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sha1.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="usart.c">
       <SubType>compile</SubType>
     </Compile>

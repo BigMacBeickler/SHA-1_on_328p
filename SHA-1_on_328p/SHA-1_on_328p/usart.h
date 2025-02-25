@@ -11,11 +11,11 @@
 
 #include "avr/io.h"
 #include "avr/interrupt.h"
+#include <string.h>
+#include <stdint-gcc.h>
 
-/*wissen lassen das es den Buffer gibt*/
 
-char rxBuffer[];
-unsigned short int RX_BUFFER_SIZE;
+//unsigned short int RX_BUFFER_SIZE;
 
 void usart_init(unsigned int iBaud);
 int usart_start();

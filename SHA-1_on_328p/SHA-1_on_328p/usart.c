@@ -7,10 +7,15 @@
 
 #include "usart.h"
 
-#define F_CPU 16000000UL
 
-volatile char recieveByte;
-volatile int pos = 0;
+#define F_CPU 16000000UL
+#define RX_BUFFER_SIZE ( 2048 ) / 2  // Byte-size of receive buffer, half the ram
+#define TX_BUFFER_SIZE 20  // Byte-size of transmit buffer, probably the size of the hashed value (160 bit)?
+
+volatile uint8_t pos = 0;
+volatile uint8_t error = 0;
+volatile uint8_t rxBuffer[RX_BUFFER_SIZE];
+
 //usart initialisieren
 
 void usart_init(unsigned int Baud){
@@ -36,21 +41,36 @@ void usart_init(unsigned int Baud){
 	sei();
 }
 
-/* Interrupt Routine bei Datenempfang */
-/* Daten werden aus Register in recieveByte geschrieben, anschließend in den RxBuffer geschrieben, sollte dieser nicht voll sein.*/
+/* Interrupt for receiving data */
+/* read from register, check if position is within buffer range, if yes, store in data array*/
 
 
 ISR(USART_RX_vect){
-	recieveByte = UDR0;
-	rxBuffer[pos] = recieveByte;
 	
-	if(pos < RX_BUFFER_SIZE){
-		pos ++;
-	} else {
-		while(pos > 0){
-			rxBuffer[pos] = 0;
-			pos --;
-		}
+	uint8_t data = UDR0;
+	
+	if( (pos + 1 ) % RX_BUFFER_SIZE != 0){
+		rxBuffer[pos] = data;
 	}
 	
+	/*falls buffer nicht voll, erhöhe pos, ansonsten buffer leeren und abbrechen*/
+	/* if pos % Buffersize != 0, pos is within buffer bounds */
+	
+	/* den teil an die richtige stelle schieben
+	if( pos < RX_BUFFER_SIZE ){
+		pos ++;
+	} else {
+		memset(rxBuffer, 0, RX_BUFFER_SIZE);
+	}
+*/
+	
 }
+
+uint8_t check(){
+	/* ' for char litarals aka asci chars and " for strings with \0 terminator */
+	if(1){
+		return (rxBuffer[pos-1] == '#' && rxBuffer[pos] == '!');
+	}
+	
+	return;
+	}
