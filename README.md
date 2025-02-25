@@ -82,6 +82,12 @@ ROTL(x, n) ((x << n) | (x >> (32 - n)))
 x wird um n stellen nach links geshiftet, es fallesn n bits am anfang weg. Die wegfallenden bits werden aber auch nach rechts geschiftet >> (32-n) und mit dem vorherigen ergebniss oder verknüüft. So werden die vorderen bits hinten angefügt.
 
 
+Startwerte für 32 Bit Arbeitswörter: 
+0H = 67452301
+1H = efcdab89
+2H = 98badcfe
+3H = 10325476
+4H = c3d2e1f0
 
 
 
