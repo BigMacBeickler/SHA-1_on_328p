@@ -75,6 +75,13 @@ To Do:
 
 
 
+ROTL funktioniert folgendermaßen
+
+ROTL(x, n) ((x << n) | (x >> (32 - n)))
+
+x wird um n stellen nach links geshiftet, es fallesn n bits am anfang weg. Die wegfallenden bits werden aber auch nach rechts geschiftet >> (32-n) und mit dem vorherigen ergebniss oder verknüüft. So werden die vorderen bits hinten angefügt.
+
+
 
 
 
