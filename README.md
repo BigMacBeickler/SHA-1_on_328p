@@ -100,4 +100,5 @@ Startwerte für 32 Bit Arbeitswörter:
 Quellen:
 PDF: FIPS PUB 180-4; FEDERAL INFORMATION PROCESSING STANDARDS PUBLICATION Secure Hash Standard (SHS)
 https://www.arnabkumardas.com/arduino-tutorial/usart-programming/ ??
+https://www.nongnu.org/avr-libc/user-manual/group__avr__eeprom.html#gaa42f9b445115c9bbbeca19dab6f7fba9	eeprom befehle
 

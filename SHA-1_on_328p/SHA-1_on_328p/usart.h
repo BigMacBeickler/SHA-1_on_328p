@@ -9,16 +9,14 @@
 #ifndef USART_H_
 #define USART_H_
 
-#include "avr/io.h"
-#include "avr/interrupt.h"
-#include <string.h>
-#include <stdint-gcc.h>
 
+#include <stdint-gcc.h>
 
 //unsigned short int RX_BUFFER_SIZE;
 
 void usart_init(unsigned int iBaud);
-int usart_start();
+uint8_t check();
+void send();
 
 
 
