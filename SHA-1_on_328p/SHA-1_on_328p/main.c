@@ -21,10 +21,6 @@
 
 #define EEPROM_HASH_ADRESS 0x00
 
-uint8_t testarray[] = {'1','2','3','4'};
-uint32_t count = 0;
-uint32_t count2 = 0;
-
 // sha-1 initial values, saves values in eeprom for keeping ram free, if they are not there already; eeprom_update_block for minimizing eeprom write cycles
 const uint32_t sha1_initial_values[5] = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0};
 
@@ -41,21 +37,40 @@ int main(void)
 	//UART_init();
 	DDRB |= (1 << PB5);  // Setze PB0 als Ausgang (LED-Pin)
 
-	
-	
+	    SHA1_CTX ctx;
+	    uint8_t digest[SHA1_BLOCK_SIZE];
+	    const char *message = "abc";
+		//const char *message = "Hello, AVR!";
+				    
     while (1) {
 		
 		if(gotcalled){
-			save();
 			gotcalled = 0;
+			save();
 			//uart_sendByte(rxBuffer[rxBufPos-1]);
 			//uart_sendArray(rxBuffer, rxBufPos);
 		}
+		if(startFlag){
+			cli();
+			startFlag=0;
+			uart_sendString(message);
+			sha1_init(&ctx);
+			sha1_update(&ctx, message, 3);  // Length of "Hello, AVR!"
+			sha1_final(&ctx, digest);
+			memset(rxBuffer, 0, RX_BUFFER_SIZE);
+			sei();
+		}
 		
 		if(answearFlag){
-			uart_sendString(rxBuffer);
-			PORTB ^= ( 1 << PB5 );
 			answearFlag = 0;
+			    uart_sendString("SHA1: ");
+			    for (uint8_t i = 0; i < 20; i++) {
+				    uart_transmit_hex(digest[i]);
+					uart_sendByte(' ');
+					//uart_sendByte('\n');
+			    }
+			    uart_sendByte('\n');
+			PORTB ^= ( 1 << PB5 );
 		}
 	
 	}

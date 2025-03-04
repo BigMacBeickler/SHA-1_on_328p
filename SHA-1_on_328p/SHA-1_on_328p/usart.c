@@ -14,10 +14,6 @@
 #include <stdint-gcc.h>
 
 
-#define F_CPU 16000000UL
-#define RX_BUFFER_SIZE 1024		// Byte-size of receive buffer, half the ram, more possible?
-#define TX_BUFFER_SIZE 20				// Byte-size of transmit buffer, probably the size of the hashed value (160 bit)?
-
 volatile char rxBuffer[RX_BUFFER_SIZE];
 volatile uint16_t rxBufPos = 0;
 volatile uint8_t startFlag = 0;			// tell if algorithm can start
@@ -52,7 +48,7 @@ void uart_sendByte(uint8_t data){
 //unnoettig?
 void uart_sendArray(uint8_t *array, uint16_t length)
 {
-	for(uint8_t n = 0; n < length; n++){
+	for(uint16_t n = 0; n < length; n++){
 		uart_sendByte(array[n]);
 	}
 }
@@ -62,6 +58,13 @@ void uart_sendString(const uint8_t *String)
 	while(*String){
 		uart_sendByte(*String++);
 	}
+}
+
+void uart_transmit_hex(uint8_t byte) {
+	char hex[] = "0123456789ABCDEF";
+	uart_sendByte(hex[byte >> 4]);  // Send high nibble
+	uart_sendByte(hex[byte & 0x0F] );  // Send low nibble
+	//uart_sendByte(byte);
 }
 
 void uart_DEBUG(const uint8_t *String)
@@ -76,13 +79,13 @@ void uart_DEBUG(const uint8_t *String)
 	uart_sendByte(newline);
 }
 
-//receive data, write in buffer if there is space, delete buffer if full
+//receive data, write in buffer if there is space, delete buffer if full, check for start or answearsignal
 
 void save(){
 	//uart_sendByte(data);
 		if(((rxBufPos + 1) % RX_BUFFER_SIZE) > 0){
-			rxBuffer[rxBufPos] = data;				//geht hier das ++ in der abfrage oder muss das nach kommen?
-			rxBufPos++;
+			rxBuffer[rxBufPos++] = data;				//geht hier das ++ in der abfrage oder muss das nach kommen?
+			//rxBufPos++;
 		} else {
 			memset(rxBuffer, 0, RX_BUFFER_SIZE);
 			startFlag = 0;
@@ -102,29 +105,4 @@ void save(){
 ISR(USART_RX_vect){
 	data = UDR0;
 	gotcalled = 1;
-
-
-	//if(((rxBufPos + 1) % RX_BUFFER_SIZE) > 0){	
-		//rxBuffer[rxBufPos] = data;				//geht hier das ++ in der abfrage oder muss das nach kommen?
-		//rxBufPos++;
-		////PORTB ^= ( 1 << PB5 );
-		//} else {
-		//memset(rxBuffer, 0, RX_BUFFER_SIZE);
-		//startFlag = 0;
-		//answearFlag = 0;
-	//}
-	//
-	//uart_sendString(rxBuffer);
-	
-	////uart_sendString(rxBuffer);
-	//if (rxBufPos >= 2) {
-		//if (rxBuffer[rxBufPos - 1] == '#' && rxBuffer[rxBufPos] == '!') {
-			//startFlag = 1;
-			//} else if (rxBuffer[rxBufPos - 1] == '#' && rxBuffer[rxBufPos] == '$') {
-			//answearFlag = 1;
-			//PORTB ^= ( 1 << PB5 );
-		//}
-		//
-	//}
-	//sei();
 }
