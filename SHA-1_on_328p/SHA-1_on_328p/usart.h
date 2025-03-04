@@ -16,7 +16,8 @@
 
 void usart_init(unsigned int iBaud);
 uint8_t check();
-void send();
+//void send();
+void UART_transmit(char x);
 
 
 

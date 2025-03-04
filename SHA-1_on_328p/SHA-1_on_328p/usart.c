@@ -21,18 +21,19 @@
 volatile uint8_t pos = 0;
 volatile uint8_t error = 0;
 volatile uint8_t rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t test = 'a';
 
 /*initialize uart ;calculate presclaer and write values for dynamic baud rate;
 enable tx & rx; Format: 8 data bit, odd parity, 1 stop bit; interrupt enabled
 */
 void usart_init(unsigned int Baud){
 	
-	unsigned short int Baud_Prescaler = F_CPU / ( 16 * Baud ) - 1;
+	unsigned short int Baud_Prescaler = (F_CPU / ( 16UL * Baud ) - 1);
 	
 	UBRR0H = (unsigned char) Baud_Prescaler >> 8;
 	UBRR0L = (unsigned char) Baud_Prescaler;
 	
-	UCSR0B = ( 1 << TXEN0 ) | ( 1 << RXEN0 );
+	UCSR0B = ( 1 << RXEN0 ) | ( 1 << TXEN0 );
 	
 	UCSR0C = ( 1 << UCSZ01 ) | ( 1 << UCSZ00);
 	UCSR0C = ( 1 << UPM01 );
@@ -54,28 +55,19 @@ uint8_t check(){
 	return 0;
 }
 
+/*
 void send() {
-	while((UCSR0A & (1 << UDRE0)) == 0);
-	UDR0 = 'A';
+	PORTB |= (0 << PB5); // Toggle LED
+	while(!(UCSR0A & (1 << UDRE0)));
+	PORTB |= (1 << PB5);
+	UDR0 = test;
+
+}*/
+
+void UART_transmit(char x) {
+	
+	while (!(UCSR0A & (1 << UDRE0))); // Wait for empty transmit buffer
+
+	UDR0 = (x+1); // Send data
 }
 
-ISR(USART_RX_vect){
-	
-	uint8_t data = UDR0;
-	
-	if( (pos + 1 ) % RX_BUFFER_SIZE != 0){
-		rxBuffer[pos] = data;
-	}
-	
-	/*falls buffer nicht voll, erhöhe pos, ansonsten buffer leeren und abbrechen*/
-	/* if pos % Buffersize != 0, pos is within buffer bounds */
-	
-	/* den teil an die richtige stelle schieben
-	if( pos < RX_BUFFER_SIZE ){
-		pos ++;
-	} else {
-		memset(rxBuffer, 0, RX_BUFFER_SIZE);
-	}
-*/
-	
-}
