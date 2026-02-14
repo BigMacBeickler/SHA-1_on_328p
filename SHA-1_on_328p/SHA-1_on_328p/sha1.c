@@ -15,8 +15,7 @@ void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
 
 	// Copy the block into W[0..15]
 	for (i = 0; i < 16; i++) {
-		w[i] = (data[i * 4] << 24) | (data[i * 4 + 1] << 16) |
-		(data[i * 4 + 2] << 8) | (data[i * 4 + 3]);
+		w[i] = ((uint32_t)data[i*4] << 24) | ((uint32_t)data[i*4 + 1] << 16) | ((uint32_t)data[i*4 + 2] <<  8) | ((uint32_t)data[i*4 + 3]);
 	}
 
 	// Extend the 16 words into 80 words
@@ -58,8 +57,9 @@ void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
 	context->state[4] += e;
 }
 
+	//BIGMAC
 void sha1_init(SHA1_CTX *context) {
-	//context->count[0] = context->count[1] = 0;
+	memset(context,0,sizeof(*context));
 	context->state[0] = 0x67452301;
 	context->state[1] = 0xEFCDAB89;
 	context->state[2] = 0x98BADCFE;

@@ -84,14 +84,14 @@ void uart_DEBUG(const uint8_t *String)
 void save(){
 	//uart_sendByte(data);
 		if(((rxBufPos + 1) % RX_BUFFER_SIZE) > 0){
-			rxBuffer[rxBufPos++] = data;				//geht hier das ++ in der abfrage oder muss das nach kommen?
-			//rxBufPos++;
+			rxBuffer[rxBufPos] = data;				//geht hier das ++ in der abfrage oder muss das nach kommen?
+			rxBufPos++;
 		} else {
 			memset(rxBuffer, 0, RX_BUFFER_SIZE);
 			startFlag = 0;
 			answearFlag = 0;
 		}
-		
+		uart_sendArray(rxBuffer, rxBufPos);
 		if (rxBufPos >= 2) {
 			if (rxBuffer[rxBufPos - 2] == '#' && rxBuffer[rxBufPos - 1] == '!') {
 				startFlag = 1;

@@ -28,10 +28,35 @@ void write_hash_eeprom(){
 	eeprom_update_block(sha1_initial_values, EEPROM_HASH_ADRESS, sizeof(sha1_initial_values));
 }
 
+static void sha1_selftest_abc(void)
+{
+	// "abc" als *vorverarbeiteter* 512-bit Block (64 Bytes)
+	static const uint8_t block[64] = {
+		0x61,0x62,0x63,0x80,
+		0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+		0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x18
+	};
+
+	uint32_t H[5];
+	sha1_init(H);
+
+	// >>> HIER rufst du die Funktion auf, die bei dir einen 64-Byte-Block verarbeitet:
+	// z.B. sha1_process_block(H, block); oder sha1_compress(H, block);
+	sha1_process_block(H, block);
+
+	// Ausgabe als 5x32-bit in HEX (so wie du es eh machst)
+	uart_puts("SHA1(abc)= ");
+	for (uint8_t i=0;i<5;i++) uart_put_hex32(H[i]);
+	uart_puts("\r\n");
+}
 
 
 int main(void)
 {
+	uint8_t block[64]={61626380000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000018};
 	write_hash_eeprom();
 	usart_init(9600);
 	//UART_init();
@@ -55,9 +80,10 @@ int main(void)
 			startFlag=0;
 			uart_sendString(message);
 			sha1_init(&ctx);
-			sha1_update(&ctx, message, 3);  // Length of "Hello, AVR!"
+			sha1_update(&ctx, block, 63);  // Length of "Hello, AVR!"
 			sha1_final(&ctx, digest);
 			memset(rxBuffer, 0, RX_BUFFER_SIZE);
+			rxBufPos = 0;
 			sei();
 		}
 		

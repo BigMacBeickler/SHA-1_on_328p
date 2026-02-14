@@ -14,11 +14,11 @@
 #define F_CPU 16000000UL
 #define RX_BUFFER_SIZE 1024		// Byte-size of receive buffer, half the ram, more possible?
 
-volatile char rxBuffer[];
-volatile uint16_t rxBufPos;
-volatile uint8_t startFlag;
-volatile uint8_t answearFlag;
-volatile uint8_t gotcalled;
+extern volatile char rxBuffer[];
+extern volatile uint16_t rxBufPos;
+extern volatile uint8_t startFlag;
+extern volatile uint8_t answearFlag;
+extern volatile uint8_t gotcalled;
 
 void usart_init(unsigned int iBaud);
 void uart_sendByte(uint8_t data);
