@@ -8,10 +8,17 @@
 #include "sha1.h"
 #include <string.h>
 
-#define ROTL(x, n) ((x << n) | (x >> (32 - n)))
+//#define ROTL(x, n) ( ((uint32_t)(x) << (n)) | ((uint32_t)(x) >> (32 - (n))) )
+
+static inline uint32_t rotl32(uint32_t x, uint8_t n)
+{
+	return (uint32_t)((x << n) | (x >> (32 - n)));
+}
 
 void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
-	uint32_t a, b, c, d, e, i, j, t, w[80];
+	//uint32_t a, b, c, d, e, i, j, t, w[80];
+	uint32_t a, b, c, d, e, i, t;
+	static uint32_t w[80];
 
 	// Copy the block into W[0..15]
 	for (i = 0; i < 16; i++) {
@@ -20,7 +27,8 @@ void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
 
 	// Extend the 16 words into 80 words
 	for (i = 16; i < 80; i++) {
-		w[i] = ROTL(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
+		//w[i] = ROTL(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
+		w[i] = rotl32(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
 	}
 
 	// Initialize working variables
@@ -41,10 +49,12 @@ void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
 		else
 		t = (b ^ c ^ d) + 0xCA62C1D6;
 
-		t += ROTL(a, 5) + e + w[i];
+		//t += ROTL(a, 5) + e + w[i];
+		t += rotl32(a, 5) + e + w[i];
 		e = d;
 		d = c;
-		c = ROTL(b, 30);
+		//c = ROTL(b, 30);
+		c = rotl32(b, 30);
 		b = a;
 		a = t;
 	}
@@ -67,11 +77,11 @@ void sha1_init(SHA1_CTX *context) {
 	context->state[4] = 0xC3D2E1F0;
 }
 
-void sha1_update(SHA1_CTX *context, const uint8_t *data, uint32_t len) {
+void sha1_update(SHA1_CTX *context, const uint8_t* data, uint32_t len) {
 	uint32_t i, j;
 
 	j = (context->count[0] >> 3) & 63;
-	if ((context->count[0] += len << 3) < (len << 3))
+	if ((context->count[0]+=len<<3) < (len << 3))
 	context->count[1]++;
 	context->count[1] += (len >> 29);
 
@@ -104,3 +114,16 @@ void sha1_final(SHA1_CTX *context, uint8_t digest[SHA1_BLOCK_SIZE]) {
 }
 
 
+void sha1_hash_one_preprocessed_block(const uint8_t block[64], uint8_t digest[SHA1_BLOCK_SIZE])
+{
+	SHA1_CTX ctx;
+	sha1_init(&ctx);
+
+	// WICHTIG: block ist bereits gepaddet -> KEIN sha1_update/sha1_final verwenden!
+	sha1_transform(&ctx, block);
+
+	// state -> digest (big endian)
+	for (uint8_t i = 0; i < 20; i++) {
+		digest[i] = (uint8_t)((ctx.state[i >> 2] >> ((3 - (i & 3)) * 8)) & 0xFF);
+	}
+}

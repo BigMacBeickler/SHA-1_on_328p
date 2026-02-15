@@ -14,7 +14,7 @@
 #define F_CPU 16000000UL
 #define RX_BUFFER_SIZE 1024		// Byte-size of receive buffer, half the ram, more possible?
 
-extern volatile char rxBuffer[];
+extern volatile uint8_t rxBuffer[];
 extern volatile uint16_t rxBufPos;
 extern volatile uint8_t startFlag;
 extern volatile uint8_t answearFlag;

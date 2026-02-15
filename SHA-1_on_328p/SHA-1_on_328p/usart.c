@@ -14,12 +14,12 @@
 #include <stdint-gcc.h>
 
 
-volatile char rxBuffer[RX_BUFFER_SIZE];
+volatile uint8_t rxBuffer[RX_BUFFER_SIZE];
 volatile uint16_t rxBufPos = 0;
 volatile uint8_t startFlag = 0;			// tell if algorithm can start
 volatile uint8_t answearFlag = 0;		// tell if data can be send back
 volatile uint8_t gotcalled = 0;
-volatile char data;
+volatile uint8_t data;
 
 /*initialize uart ;calculate presclaer and write values for dynamic baud rate;
 enable tx & rx; Format: 8 data bit, no odd parity?, 1 stop bit; interrupt enabled
@@ -64,7 +64,6 @@ void uart_transmit_hex(uint8_t byte) {
 	char hex[] = "0123456789ABCDEF";
 	uart_sendByte(hex[byte >> 4]);  // Send high nibble
 	uart_sendByte(hex[byte & 0x0F] );  // Send low nibble
-	//uart_sendByte(byte);
 }
 
 void uart_DEBUG(const uint8_t *String)
@@ -94,15 +93,46 @@ void save(){
 		uart_sendArray(rxBuffer, rxBufPos);
 		if (rxBufPos >= 2) {
 			if (rxBuffer[rxBufPos - 2] == '#' && rxBuffer[rxBufPos - 1] == '!') {
+				rxBufPos -= 2;
 				startFlag = 1;
 			} else if (rxBuffer[rxBufPos - 2] == '#' && rxBuffer[rxBufPos - 1] == '$') {
+				rxBufPos -= 2;
 				answearFlag = 1;
 			PORTB ^= ( 1 << PB5 );
 			}
 		}
 }
 
-ISR(USART_RX_vect){
-	data = UDR0;
-	gotcalled = 1;
+//ISR(USART_RX_vect){
+	//data = UDR0;
+	//gotcalled = 1;
+//}
+
+ISR(USART_RX_vect)
+{
+	uint8_t c = UDR0;
+
+	// Optional: PuTTY-Zeilenenden ignorieren, damit Enter nicht "mitgehasht" wird
+	if (c == '\r' || c == '\n') return;
+
+	// Buffer overflow Schutz
+	if (rxBufPos >= RX_BUFFER_SIZE) {
+		rxBufPos = 0;
+		startFlag = 0;
+		answearFlag = 0;
+		return;
+	}
+
+	rxBuffer[rxBufPos++] = c;
+
+	// Kommandoerkennung: #! oder #$
+	if (rxBufPos >= 2 && rxBuffer[rxBufPos - 2] == '#' ) {
+		if (rxBuffer[rxBufPos - 1] == '!') {
+			rxBufPos -= 2;      // Kommando NICHT in der Message behalten
+			startFlag = 1;
+			} else if (rxBuffer[rxBufPos - 1] == '$') {
+			rxBufPos -= 2;      // Kommando NICHT in der Message behalten
+			answearFlag = 1;
+		}
+	}
 }
