@@ -1,7 +1,7 @@
 /*
  * SHA-1_on_328p.c
  *
- * Created: 15.02.2025 13:08:27
+ * Created: 15.01.2026 13:08:27
  * Author : BigMac
  */ 
 
@@ -32,37 +32,37 @@ void write_hash_eeprom(){
 
 int main(void)
 {
-	//algorythmus bekommt 512 bit lange kette. Message + padding  [1,0,0,.] + Messagelänge = 512 bit
-	
-	write_hash_eeprom();
-	usart_init(9600);
-	
+	////algorythmus bekommt 512 bit lange kette. Message + padding  [1,0,0,.] + Messagelänge = 512 bit
+	//
+	//write_hash_eeprom();
+	//usart_init(9600);
+	//
+//
+	//// --- SHA1 SELFTEST: "abc" ---
+	//uint8_t block_test[64] = {0};
+	//block_test[0] = 'a';
+	//block_test[1] = 'b';
+	//block_test[2] = 'c';
+	//block_test[3] = 0x80;
+	//block_test[63] = 0x18;   // 24 bit
+//
+	//uint8_t digest_test[20];
+	//sha1_hash_one_preprocessed_block(block_test, digest_test);
+//
+	//uart_sendString((uint8_t*)"SHA1(abc) = ");
+	//for (uint8_t i = 0; i < 20; i++) {
+		//uart_transmit_hex(digest_test[i]);
+	//}
+	//uart_sendString((uint8_t*)"\r\nEXPECTED = A9993E364706816ABA3E25717850C26C9CD0D89D\r\n");
+	//// --- Ende SELFTEST ---
 
-	// --- SHA1 SELFTEST: "abc" ---
-	uint8_t block_test[64] = {0};
-	block_test[0] = 'a';
-	block_test[1] = 'b';
-	block_test[2] = 'c';
-	block_test[3] = 0x80;
-	block_test[63] = 0x18;   // 24 bit
-
-	uint8_t digest_test[20];
-	sha1_hash_one_preprocessed_block(block_test, digest_test);
-
-	uart_sendString((uint8_t*)"SHA1(abc) = ");
-	for (uint8_t i = 0; i < 20; i++) {
-		uart_transmit_hex(digest_test[i]);
-	}
-	uart_sendString((uint8_t*)"\r\nEXPECTED = A9993E364706816ABA3E25717850C26C9CD0D89D\r\n");
-	// --- Ende SELFTEST ---
-
-	
-	uint8_t block[64] = {0};      // alles 0
-	block[0] = 0x61;              // 'a'
-	block[1] = 0x62;              // 'b'
-	block[2] = 0x63;              // 'c'
-	block[3] = 0x80;              // Padding-Bit
-	block[63] = 0x18;             // Länge = 24 bit (0x0000000000000018)
+	//
+	//uint8_t block[64] = {0};      // alles 0
+	//block[0] = 0x61;              // 'a'
+	//block[1] = 0x62;              // 'b'
+	//block[2] = 0x63;              // 'c'
+	//block[3] = 0x80;              // Padding-Bit
+	//block[63] = 0x18;             // Länge = 24 bit (0x0000000000000018)
 	
 	//UART_init();
 	DDRB |= (1 << PB5);  // Setze PB0 als Ausgang (LED-Pin)
@@ -71,33 +71,15 @@ int main(void)
 	
 	//20 Byte = 160 Bit Ergebnis
 	uint8_t digest[SHA1_BLOCK_SIZE];
-	uint8_t *message = "";
-	//const char *message = "Hello, AVR!";
+	//uint8_t *message = "";
 	
 				    
     while (1) {
-	
-		if(gotcalled){
-			gotcalled = 0;
-			//uart_sendString(message);
-			save();
-			//uart_sendByte(rxBuffer[rxBufPos-1]);
-			//uart_sendArray(rxBuffer, rxBufPos);
-		}
-		/*
-		if(startFlag){
-			cli();
-			startFlag=0;
-			uart_sendString(message);
-			sha1_init(&ctx);
-			sha1_update(&ctx, rxBuffer, rxBufPos);  
-			sha1_final(&ctx, digest);
-			//sha1_hash_one_preprocessed_block(rxBuffer, digest);
-			memset(rxBuffer, 0, RX_BUFFER_SIZE);
-			rxBufPos = 0;
-			sei();
-		}
-		*/
+		//if(gotcalled){
+			//gotcalled = 0;
+			//save();
+		//}
+		
 		if (startFlag) {
 			uint16_t len;
 
@@ -122,18 +104,7 @@ int main(void)
 			// RX Interrupt wieder an
 			UCSR0B |= (1 << RXCIE0);
 		}
-		/*
-		if(answearFlag){
-			answearFlag = 0;
-			    uart_sendString("SHA1: ");
-			    for (uint8_t i = 0; i < 20; i++) {
-				    uart_transmit_hex(digest[i]);
-					//uart_sendByte(' ');
-			    }
-			    uart_sendByte('\n');
-			PORTB ^= ( 1 << PB5 );
-		}
-	*/
+
 		if (answearFlag) {
 			answearFlag = 0;
 			uart_sendString((uint8_t*)"SHA1: ");

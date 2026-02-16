@@ -1,7 +1,7 @@
 /*
  * usart.h
  *
- * Created: 24.02.2025 19:25:08
+ * Created: 24.01.2026 19:25:08
  *  Author: BigMac
  */ 
 

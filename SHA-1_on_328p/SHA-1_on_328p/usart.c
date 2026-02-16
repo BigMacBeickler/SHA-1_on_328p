@@ -1,7 +1,7 @@
 /*
  * usart.c
  *
- * Created: 24.02.2025 19:26:08
+ * Created: 24.01.2026 19:26:08
  *  Author: BigMac
  */ 
 
@@ -80,33 +80,64 @@ void uart_DEBUG(const uint8_t *String)
 
 //receive data, write in buffer if there is space, delete buffer if full, check for start or answearsignal
 
-void save(){
-	//uart_sendByte(data);
-		if(((rxBufPos + 1) % RX_BUFFER_SIZE) > 0){
-			rxBuffer[rxBufPos] = data;				//geht hier das ++ in der abfrage oder muss das nach kommen?
-			rxBufPos++;
-		} else {
-			memset(rxBuffer, 0, RX_BUFFER_SIZE);
-			startFlag = 0;
-			answearFlag = 0;
-		}
-		uart_sendArray(rxBuffer, rxBufPos);
-		if (rxBufPos >= 2) {
-			if (rxBuffer[rxBufPos - 2] == '#' && rxBuffer[rxBufPos - 1] == '!') {
-				rxBufPos -= 2;
-				startFlag = 1;
-			} else if (rxBuffer[rxBufPos - 2] == '#' && rxBuffer[rxBufPos - 1] == '$') {
-				rxBufPos -= 2;
-				answearFlag = 1;
-			PORTB ^= ( 1 << PB5 );
-			}
-		}
+/*
+static inline void uart_sendByte_isr(uint8_t b)
+{
+	// Non-blocking: nur senden, wenn Datenregister frei
+	if (UCSR0A & (1 << UDRE0)) {
+		UDR0 = b;
+	}
 }
 
-//ISR(USART_RX_vect){
-	//data = UDR0;
-	//gotcalled = 1;
-//}
+
+
+ISR(USART_RX_vect)
+{
+	uint8_t c = UDR0;
+
+	// Echo im Terminal:
+	// Enter hübsch darstellen, aber NICHT in den Hash-Buffer übernehmen
+	if (c == '\r' || c == '\n') {
+		uart_sendByte_isr('\r');
+		uart_sendByte_isr('\n');
+		return;
+	}
+
+	// Optional: Backspace hübsch behandeln
+	if (c == '\b' || c == 0x7F) {
+		uart_sendByte_isr('\b');
+		uart_sendByte_isr(' ');
+		uart_sendByte_isr('\b');
+		// Wenn du auch im rxBuffer löschen willst, hier rxBufPos-- etc.
+		return;
+	}
+
+	// Zeichen normal echoen
+	uart_sendByte_isr(c);
+
+	// --- dein bisheriger Code: in Buffer schreiben / Kommandos prüfen ---
+	if (rxBufPos >= RX_BUFFER_SIZE) {
+		rxBufPos = 0;
+		startFlag = 0;
+		answearFlag = 0;
+		return;
+	}
+
+	rxBuffer[rxBufPos++] = c;
+
+	if (rxBufPos >= 2 && rxBuffer[rxBufPos - 2] == '#') {
+		if (rxBuffer[rxBufPos - 1] == '!') {
+			rxBufPos -= 2;
+			startFlag = 1;
+			} else if (rxBuffer[rxBufPos - 1] == '$') {
+			rxBufPos -= 2;
+			answearFlag = 1;
+		}
+	}
+}
+
+
+*/
 
 ISR(USART_RX_vect)
 {

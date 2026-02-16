@@ -1,14 +1,13 @@
 /*
  * sha1.c
  *
- * Created: 25.02.2025 21:38:51
+ * Created: 25.01.2026 21:38:51
  *  Author: BigMac
  */ 
 
 #include "sha1.h"
 #include <string.h>
 
-//#define ROTL(x, n) ( ((uint32_t)(x) << (n)) | ((uint32_t)(x) >> (32 - (n))) )
 
 static inline uint32_t rotl32(uint32_t x, uint8_t n)
 {
@@ -113,17 +112,17 @@ void sha1_final(SHA1_CTX *context, uint8_t digest[SHA1_BLOCK_SIZE]) {
 	digest[i] = (uint8_t)((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
 }
 
-
-void sha1_hash_one_preprocessed_block(const uint8_t block[64], uint8_t digest[SHA1_BLOCK_SIZE])
-{
-	SHA1_CTX ctx;
-	sha1_init(&ctx);
-
-	// WICHTIG: block ist bereits gepaddet -> KEIN sha1_update/sha1_final verwenden!
-	sha1_transform(&ctx, block);
-
-	// state -> digest (big endian)
-	for (uint8_t i = 0; i < 20; i++) {
-		digest[i] = (uint8_t)((ctx.state[i >> 2] >> ((3 - (i & 3)) * 8)) & 0xFF);
-	}
-}
+//
+//void sha1_hash_one_preprocessed_block(const uint8_t block[64], uint8_t digest[SHA1_BLOCK_SIZE])
+//{
+	//SHA1_CTX ctx;
+	//sha1_init(&ctx);
+//
+	//// WICHTIG: block ist bereits gepaddet -> KEIN sha1_update/sha1_final verwenden!
+	//sha1_transform(&ctx, block);
+//
+	//// state -> digest (big endian)
+	//for (uint8_t i = 0; i < 20; i++) {
+		//digest[i] = (uint8_t)((ctx.state[i >> 2] >> ((3 - (i & 3)) * 8)) & 0xFF);
+	//}
+//}
