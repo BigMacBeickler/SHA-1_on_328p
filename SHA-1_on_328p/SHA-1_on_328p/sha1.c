@@ -1,32 +1,30 @@
 /*
- * sha1.c
- *
- * Created: 25.01.2026 21:38:51
- *  Author: BigMac
- */ 
+* sha1.c
+*
+* Created: 25.01.2026 21:38:51
+*  Author: BigMac
+*/
 
 #include "sha1.h"
 #include <string.h>
 
-
+//cyclical rotation of n bits to the left
 static inline uint32_t rotl32(uint32_t x, uint8_t n)
 {
 	return (uint32_t)((x << n) | (x >> (32 - n)));
 }
 
 void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
-	//uint32_t a, b, c, d, e, i, j, t, w[80];
 	uint32_t a, b, c, d, e, i, t;
 	static uint32_t w[80];
 
-	// Copy the block into W[0..15]
+	// Copy the block into W[0..15], big endian style
 	for (i = 0; i < 16; i++) {
 		w[i] = ((uint32_t)data[i*4] << 24) | ((uint32_t)data[i*4 + 1] << 16) | ((uint32_t)data[i*4 + 2] <<  8) | ((uint32_t)data[i*4 + 3]);
 	}
 
 	// Extend the 16 words into 80 words
 	for (i = 16; i < 80; i++) {
-		//w[i] = ROTL(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
 		w[i] = rotl32(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
 	}
 
@@ -48,11 +46,10 @@ void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
 		else
 		t = (b ^ c ^ d) + 0xCA62C1D6;
 
-		//t += ROTL(a, 5) + e + w[i];
+		
 		t += rotl32(a, 5) + e + w[i];
 		e = d;
 		d = c;
-		//c = ROTL(b, 30);
 		c = rotl32(b, 30);
 		b = a;
 		a = t;
@@ -66,7 +63,7 @@ void sha1_transform(SHA1_CTX *context, const uint8_t data[]) {
 	context->state[4] += e;
 }
 
-	//BIGMAC
+//Bit odd, innit?
 void sha1_init(SHA1_CTX *context) {
 	memset(context,0,sizeof(*context));
 	context->state[0] = 0x67452301;
@@ -98,9 +95,27 @@ void sha1_final(SHA1_CTX *context, uint8_t digest[SHA1_BLOCK_SIZE]) {
 	uint32_t i;
 
 	for (i = 0; i < 8; i++)
-	finalcount[i] = (uint8_t)((context->count[(i >= 4 ? 0 : 1)] >>
-	((3 - (i & 3)) * 8)) &
-	255);
+	{
+		uint32_t word;
+		uint8_t  byte_index;
+		uint8_t  shift;
+
+		// for i = 0..3: high word (count[1]), for i = 4..7: low word (count[0])
+		if (i < 4)
+		{
+			word = context->count[1];
+		}
+		else
+		{
+			word = context->count[0];
+		}
+	
+		//rotate through block 1 to 4
+		byte_index = (uint8_t)(i % 4);                 
+		shift      = (uint8_t)((3 - byte_index) * 8);  
+
+		finalcount[i] = (uint8_t)((word >> shift) & 0xFF);
+	}
 
 	sha1_update(context, (uint8_t *)"\x80", 1);
 	while ((context->count[0] & 504) != 448)
@@ -112,17 +127,4 @@ void sha1_final(SHA1_CTX *context, uint8_t digest[SHA1_BLOCK_SIZE]) {
 	digest[i] = (uint8_t)((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
 }
 
-//
-//void sha1_hash_one_preprocessed_block(const uint8_t block[64], uint8_t digest[SHA1_BLOCK_SIZE])
-//{
-	//SHA1_CTX ctx;
-	//sha1_init(&ctx);
-//
-	//// WICHTIG: block ist bereits gepaddet -> KEIN sha1_update/sha1_final verwenden!
-	//sha1_transform(&ctx, block);
-//
-	//// state -> digest (big endian)
-	//for (uint8_t i = 0; i < 20; i++) {
-		//digest[i] = (uint8_t)((ctx.state[i >> 2] >> ((3 - (i & 3)) * 8)) & 0xFF);
-	//}
-//}
+
